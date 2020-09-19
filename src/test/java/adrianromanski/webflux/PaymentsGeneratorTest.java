@@ -1,5 +1,6 @@
 package adrianromanski.webflux;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import reactor.test.StepVerifier;
@@ -7,6 +8,8 @@ import reactor.test.StepVerifier;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
+
+import static org.assertj.core.api.Assertions.*;
 
 
 class PaymentsGeneratorTest {
@@ -23,7 +26,12 @@ class PaymentsGeneratorTest {
 //        countDownLatch.await();
 
         StepVerifier.create(paymentsGenerator.paymentsStream(Duration.ofSeconds(1)).take(2))
-                .recordWith(ArrayList::new);
+                .recordWith(ArrayList::new)
+                .consumeNextWith(Payment::hasTransactionId)
+                .expectNextCount(1)
+                .consumeRecordedWith(payments -> assertThat(payments)
+                        .allMatch(payment -> !payment.getTransactionId().isEmpty()))
+                .verifyComplete();
     }
 
     private void onPayment(Payment payment) {

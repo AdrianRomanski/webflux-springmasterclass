@@ -20,7 +20,7 @@ public class Payment {
     @NonNull
     private Instant timestamp;
 
-    boolean hasTransactionId() {
-        return transactionId.isEmpty();
+    String hasTransactionId() {
+        return transactionId;
     }
 }
